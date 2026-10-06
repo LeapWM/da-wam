@@ -1,0 +1,20 @@
+[
+  {
+    "file": "navsim_final.ckpt",
+    "role": "NAVSIM v1/v2 final SafetyFinal epoch 1",
+    "bytes": 2589226131,
+    "sha256": "7aa1d473c2a60a041c55bd4445a9c63726d53ef92afa20a9eb07f4ccd6a92de1"
+  },
+  {
+    "file": "bench2drive_4cam_score11.ckpt",
+    "role": "Bench2Drive final four-camera epoch 11",
+    "bytes": 2664097496,
+    "sha256": "7feba5635cdf8e8cb4c6616e193cba42a4dc5439283f990ccfcf1aff134e96af"
+  },
+  {
+    "file": "vjepa2_1_vitl.pt",
+    "role": "Required V-JEPA 2.1 pretrained backbone",
+    "bytes": 5151198524,
+    "sha256": "7ea9b7cb4a75d10644a8a8d42cff9e177b10dca8f02173f0eaf2b0bed82838c6"
+  }
+]

@@ -1,0 +1,35 @@
+_target_: navsim.agents.drive_jepa_perception_based.drive_jepa_agent.DriveJEPAAgent
+_convert_: 'all'
+
+config:
+  _target_: navsim.agents.drive_jepa_perception_based.drive_jepa_config.DriveJEPAConfig
+  _convert_: 'all'
+
+  trajectory_sampling:
+    _target_: nuplan.planning.simulation.trajectory.trajectory_sampling.TrajectorySampling
+    _convert_: 'all'
+    time_horizon: 4
+    interval_length: 0.5
+
+  latent: False
+  predict_future: False
+  future_frame_offsets: [1, 2]
+  future_prediction_weight: 0.1
+  future_prediction_type: l1
+  future_latent_space: projected_map
+  future_target_mode: frozen_pretrain_vit
+  future_ema_decay: 0.99925
+  future_target_layernorm: true
+  future_latent_bottleneck: 256
+  future_predictor_arch: conv
+  future_predictor_dim: 512
+  future_predictor_depth: 4
+  future_predictor_heads: 8
+  future_integration: none
+  run_future_at_inference: false
+  future_pool_fusion: gate_add
+  future_scorer_detach: false
+
+checkpoint_path: ''
+lr: 1e-4
+cache_data: false

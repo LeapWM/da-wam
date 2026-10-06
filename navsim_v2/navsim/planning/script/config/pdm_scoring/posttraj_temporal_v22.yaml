@@ -1,0 +1,30 @@
+# Independent inference-only experiment. No training or new model parameters.
+hydra:
+  run:
+    dir: ${output_dir}
+  output_subdir: ${output_dir}/code/hydra
+  searchpath:
+    - pkg://navsim.planning.script.config.common
+  job:
+    chdir: False
+
+# Match official evaluation components; a config containing hydra.searchpath
+# cannot itself be inherited as a defaults entry in Hydra 1.3.
+defaults:
+  - default_common
+  - default_evaluation
+  - scorer: pdm_scorer
+  - agent: drive_jepa_posttraj_v2_agent
+  - _self_
+  - override train_test_split: navtest
+
+simulator:
+  _target_: navsim.planning.simulation.planner.pdm_planner.simulation.pdm_simulator.PDMSimulator
+  _convert_: all
+  proposal_sampling: ${proposal_sampling}
+
+temporal_rerank:
+  enabled: true
+  mode: bounded  # momentum: paper-style unbounded 7:1 fusion
+  weight: 0.125
+  max_score_drop: 0.02  # uncalibrated learned score; experimental, not tuned

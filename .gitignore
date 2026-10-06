@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.ckpt
+*.pt
+*.pth
+*.partial
+*.log
+*.pid
+*.lock
+/bench2drive/evaluation/**/sensor_output/
+/checkpoints/training_references/

@@ -1,0 +1,39 @@
+_target_: navsim.agents.drive_jepa_posttraj_v2.drive_jepa_agent.DriveJEPAPostTrajV2Agent
+_convert_: all
+
+config:
+  _target_: navsim.agents.drive_jepa_posttraj_v2.drive_jepa_config.DriveJEPAConfig
+  _convert_: all
+
+  trajectory_sampling:
+    _target_: nuplan.planning.simulation.trajectory.trajectory_sampling.TrajectorySampling
+    _convert_: all
+    time_horizon: 4
+    interval_length: 0.5
+
+  latent: false
+  vjepa_version: 2.1
+  pretrain_pt_path: /mnt/downloads-1/models/vjepa2/vjepa2_1_vitl_dist_vitG_384.pt
+  image_architecture: vjepa2_1_vit_large_384
+  freeze_encoder: true
+  use_lora: true
+  lora_rank: 32
+  proposal_num: 32
+
+  posttraj_future_enabled: true
+  posttraj_future_loss_weight: 0.1
+  posttraj_future_ema_decay: 0.99925
+  posttraj_future_frame_offsets: [1]
+  posttraj_future_candidate_layers: 2
+  posttraj_future_full_decoder_layers: 2
+  posttraj_scorer_temporal_layers: 1
+  posttraj_future_layernorm_target: true
+  posttraj_detach_trajectory_inputs: true
+  posttraj_stage2_enabled: false
+  posttraj_joint_enabled: false
+  sub_score_weight: 0
+  final_score_weight: 1
+
+checkpoint_path: ''
+lr: 1e-4
+cache_data: false
