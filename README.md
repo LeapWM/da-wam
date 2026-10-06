@@ -35,7 +35,7 @@
 
 NAVSIM v2 uses training-free `momentum` reranking: `0.875 × learned_score + 0.125 × pair_EC`. NAVSIM v1 PDMS and v2 EPDMS follow different protocols and should not be compared directly.
 
-The tables and figures below are taken from the supplied **September 2026 manuscript**. Selected baseline rows preserve that manuscript's values and rounding; they are not a continuously updated leaderboard. The linked arXiv v2 is an earlier version of the manuscript.
+The tables and figures below are taken from the latest results. Selected baseline rows preserve that manuscript's values and rounding; they are not a continuously updated leaderboard. The linked arXiv v2 is an earlier version of the manuscript.
 
 ### NAVSIM v1
 
