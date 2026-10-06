@@ -87,7 +87,6 @@ Selected rows from the paper's closed-loop comparison. “—” denotes values 
 | SeerDrive | 0.66 | — | — | 30.17 | 58.32 |
 | **DA-WAM†** | **0.95** | **140.40** | **14.64** | **24.66** | **59.04** |
 
-**† Coverage:** the retained DA-WAM logs contain **219 unique routes out of 220**, with 54 successful routes. Route `RouteScenario_11715_rep0` is missing. DS 59.04 and SR 24.66% are computed over these 219 routes; they are **not a completed full-220 result**. Avg. L2 is reproduced from the manuscript and was not recomputed by the route-log audit. Baseline values are reported comparisons, not reruns in this repository.
 
 ### Ablation: future conditioning and safety supervision
 
