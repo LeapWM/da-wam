@@ -1,0 +1,56 @@
+{
+  "bridge": {
+    "host": "127.0.0.1",
+    "port": 50123,
+    "timeout_seconds": 60.0,
+    "connect_timeout_seconds": 30.0,
+    "inference_interval_seconds": 0.5,
+    "history_seconds": 0.5,
+    "jpeg_quality": 90,
+    "diagnostic_interval_steps": 40
+  },
+  "camera": {
+    "x": 0.8,
+    "y": 0.0,
+    "z": 1.6,
+    "pitch": 0.0,
+    "width": 1600,
+    "height": 900,
+    "fov": 70.0
+  },
+  "ego_status": {
+    "command_num": 6
+  },
+  "features": {
+    "profile": "bench2drive",
+    "image_shape": [256.0, 512.0, 3.0]
+  },
+  "controller": {
+    "trajectory_interval": 0.5,
+    "control_interval": 0.05,
+    "lookahead_index": 2,
+    "speed_points": 4,
+    "steer_sign": -1.0,
+    "steer_gain": 1.0,
+    "max_heading_radians": 0.7,
+    "steer_rate_limit": 0.18,
+    "speed_kp": 0.35,
+    "speed_ki": 0.03,
+    "brake_kp": 0.45,
+    "max_throttle": 0.75,
+    "max_target_speed": 12.0,
+    "stop_target_speed": 0.005,
+    "creep_speed_threshold": 0.3,
+    "min_start_throttle": 0.3,
+    "stop_brake": 0.7
+  },
+  "model": {
+    "name": "EMA-JQTF Bench2Drive AlignedProgress e22 20260811",
+    "model_root": "/dahuafs/userdata/2639639/Code/Drive-JEPA-V2-EMA-JQTF",
+    "hydra_config": "/dahuafs/userdata/2639639/Code/Bench2Drive-FromScratch/jinnTrainResult/EMA_JQTF_formula_TTC3_S0_e27_ProgressTop8W2Rank05_3ep-2fbc2a84/ke/EMA_JQTF_B2D_FullBase_AlignedProgress_FromScratch_8GPU/08.11_01.02/code/hydra/config.yaml",
+    "checkpoint": "/dahuafs/userdata/2639639/Code/Bench2Drive-FromScratch/jinnTrainResult/EMA_JQTF_formula_TTC3_S0_e27_ProgressTop8W2Rank05_3ep-2fbc2a84/ke/EMA_JQTF_B2D_FullBase_AlignedProgress_FromScratch_8GPU/08.11_01.02/checkpoints/best_epoch=22.ckpt",
+    "device": "cuda:0",
+    "use_bf16": true,
+    "warmup": true
+  }
+}

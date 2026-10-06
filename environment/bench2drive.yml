@@ -1,0 +1,7 @@
+name: da-wam-carla
+channels: [conda-forge]
+dependencies:
+  - python=3.8.20
+  - pip
+  - pip:
+      - -r bench2drive-requirements.txt

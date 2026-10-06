@@ -1,0 +1,78 @@
+{
+  "bridge": {
+    "host": "127.0.0.1",
+    "port": 50123,
+    "timeout_seconds": 60.0,
+    "connect_timeout_seconds": 30.0,
+    "inference_interval_seconds": 0.05,
+    "history_seconds": 0.5,
+    "jpeg_quality": 90,
+    "diagnostic_interval_steps": 40
+  },
+  "camera": {
+    "x": 0.8,
+    "y": 0.0,
+    "z": 1.6,
+    "pitch": 0.0,
+    "width": 1600,
+    "height": 900,
+    "fov": 70.0
+  },
+  "ego_status": {
+    "command_num": 6,
+    "velocity_mode": "scalar_speed"
+  },
+  "features": {
+    "profile": "bench2drive",
+    "image_shape": [
+      256.0,
+      512.0,
+      3.0
+    ],
+    "target_point": true,
+    "camera_order": [
+      "front",
+      "front_left",
+      "front_right",
+      "back"
+    ],
+    "future_camera": "front"
+  },
+  "controller": {
+    "trajectory_interval": 0.5,
+    "control_interval": 0.05,
+    "lookahead_index": 2,
+    "speed_points": 5,
+    "steer_sign": -1.0,
+    "steer_gain": 1.0,
+    "max_heading_radians": 0.7,
+    "steer_rate_limit": 0.18,
+    "speed_kp": 0.35,
+    "speed_ki": 0.03,
+    "brake_kp": 0.45,
+    "max_throttle": 0.75,
+    "max_target_speed": 12.0,
+    "stop_target_speed": 0.005,
+    "creep_speed_threshold": 0.3,
+    "min_start_throttle": 0.3,
+    "stop_brake": 0.7,
+    "lookahead_mode": "speed_distance",
+    "lookahead_speed_scale": 0.5,
+    "lookahead_distance_offset": 2.5,
+    "lookahead_distance_min": 4.0,
+    "lookahead_distance_max": 8.0,
+    "speed_estimator": "mean_interpoint"
+  },
+  "model": {
+    "name": "4cam_score11",
+    "model_root": "/dahuafs/userdata/2639639/Code/leap-auto-wam/bench2drive/dependencies/Drive-JEPA-V2-EMA-JQTF",
+    "hydra_config": "/dahuafs/userdata/2639639/Code/leap-auto-wam/bench2drive/evaluation/final_4cam/4cam_score11/hydra_config.yaml",
+    "checkpoint": "/dahuafs/userdata/2639639/Code/leap-auto-wam/checkpoints/bench2drive_4cam_score11.ckpt",
+    "device": "cuda:0",
+    "use_bf16": true,
+    "warmup": true
+  },
+  "agent_entrypoint": "/dahuafs/userdata/2639639/Code/leap-auto-wam/bench2drive/evaluation/final_4cam/evaluation_agent.py",
+  "model_launcher": "/dahuafs/userdata/2639639/Code/leap-auto-wam/bench2drive/evaluation/final_4cam/sources/4cam/run_model.sh",
+  "evaluation_camera_count": 4
+}

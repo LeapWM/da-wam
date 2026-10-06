@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+set -eu
+
+case "${1:-}" in
+  DESKTOP) echo "${HOME}/Desktop" ;;
+  DOWNLOAD) echo "${HOME}/Downloads" ;;
+  DOCUMENTS) echo "${HOME}/Documents" ;;
+  MUSIC) echo "${HOME}/Music" ;;
+  PICTURES) echo "${HOME}/Pictures" ;;
+  PUBLICSHARE) echo "${HOME}/Public" ;;
+  TEMPLATES) echo "${HOME}/Templates" ;;
+  VIDEOS) echo "${HOME}/Videos" ;;
+  *) echo "${HOME}" ;;
+esac
+
