@@ -3,7 +3,7 @@
 import torch
 from camera_contract import CAMERA_ORDER
 from tail_data import DenseDataset as FrontDataset, collate, expand_index
-from bench2drive.training.drive_jepa_cache import preprocess_front_jpeg
+from bench2drive.training.da_wam_cache import preprocess_front_jpeg
 
 
 class DenseDataset(FrontDataset):

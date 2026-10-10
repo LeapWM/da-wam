@@ -160,10 +160,7 @@ class DriveJEPAAgent(AbstractAgent):
                 from .score_module.compute_navsim_score import get_scores
 
                 metric_cache = MetricCacheLoader(
-                    Path(
-                        os.getenv("NAVSIM_EXP_ROOT")
-                        + "/Drive-JEPA-cache/train_metric_cache"
-                    )
+                    Path(os.environ.get("DA_WAM_METRIC_CACHE_ROOT", str(Path(os.environ["NAVSIM_EXP_ROOT"]) / "da_wam_cache"))) / "train_metric_cache"
                 )
                 self.train_metric_cache_paths = metric_cache.metric_cache_paths
                 self.test_metric_cache_paths = metric_cache.metric_cache_paths
@@ -266,13 +263,12 @@ class DriveJEPAAgent(AbstractAgent):
                     )
                 exp_root = Path(os.getenv("NAVSIM_EXP_ROOT"))
                 self._anchor_metric_cache_root = (
-                    exp_root / "Drive-JEPA-cache" / "train_metric_cache"
+                    Path(os.environ.get("DA_WAM_METRIC_CACHE_ROOT", str(exp_root / "da_wam_cache"))) / "train_metric_cache"
                 )
                 self._anchor_score_root = (
                     Path(config.scorer_anchor_cache_root)
                     if config.scorer_anchor_cache_root
-                    else exp_root
-                    / "Drive-JEPA-cache"
+                    else Path(os.environ.get("DA_WAM_METRIC_CACHE_ROOT", str(exp_root / "da_wam_cache")))
                     / "anchors_scores_v1_full_fp16"
                 )
 

@@ -1,4 +1,4 @@
-"""Build Drive-JEPA training caches from compressed Bench2Drive clips.
+"""Build DA-WAM training caches from compressed Bench2Drive clips.
 
 The generated directory follows NAVSIM's ``CacheOnlyDataset`` layout.  The
 source archives are streamed and are never extracted wholesale.  Camera
@@ -219,7 +219,7 @@ def _token_directory_name(token: str) -> str:
     return re.sub(r"[^A-Za-z0-9_.-]+", "__", token)
 
 
-def build_clip_drive_jepa_cache(
+def build_clip_da_wam_cache(
     archive_path: Path,
     scorer_samples: Mapping[str, Mapping[str, object]],
     cache_root: Path,
@@ -253,8 +253,8 @@ def build_clip_drive_jepa_cache(
         frame = int(sample["frame_id"])
         token = str(sample["token"])
         token_root = Path(cache_root) / split / _token_directory_name(token)
-        feature_path = token_root / "drive_jepa_feature.gz"
-        target_path = token_root / "drive_jepa_target.gz"
+        feature_path = token_root / "da_wam_feature.gz"
+        target_path = token_root / "da_wam_target.gz"
         if not force and feature_path.is_file() and target_path.is_file():
             written += 1
             continue
@@ -282,7 +282,7 @@ def build_clip_drive_jepa_cache(
     return written
 
 
-def build_drive_jepa_cache(
+def build_da_wam_cache(
     archives: Sequence[Path],
     cache_root: Path,
     scorer_cache_path: Path,
@@ -299,7 +299,7 @@ def build_drive_jepa_cache(
     samples = scorer_payload["samples"]
     sample_count = 0
     for archive_path in archives:
-        sample_count += build_clip_drive_jepa_cache(
+        sample_count += build_clip_da_wam_cache(
             archive_path,
             samples,
             cache_root,
@@ -375,7 +375,7 @@ def main() -> None:
         max_agents=args.max_agents,
         min_frame=args.history_stride,
     )
-    manifest = build_drive_jepa_cache(
+    manifest = build_da_wam_cache(
         archives,
         args.cache_root,
         args.scorer_cache,

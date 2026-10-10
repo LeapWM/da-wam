@@ -29,7 +29,7 @@ class ImgEncoder(nn.Module):
         self.use_grid_mask = True
         
         image_architecture = "vit_large"
-        # 原先: .../Drive-JEPA-cache/vitl_merge_3dataset_e50.pt
+        # 原先: .../da_wam_cache/vitl_merge_3dataset_e50.pt
         # 原先（作者路径）: /home/linhan/yinlin/projects/navsim_workspace/vjepa2_ckpts/vitl_merge_3dataset/e50.pt
         pretrain_pt_path = "/mnt/downloads-1/models/vjepa2/vitl.pt"
         fname = "./vjepa2/configs/eval/vitl/in1k.yaml"

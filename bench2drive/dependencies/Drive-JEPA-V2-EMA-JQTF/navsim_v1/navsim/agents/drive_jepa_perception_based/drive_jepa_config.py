@@ -201,7 +201,7 @@ class DriveJEPAConfig:
     # Default off: forward/inference and legacy losses remain numerically unchanged.
     scorer_anchor_auxiliary: bool = False
     anchor_trajectory_path: str = "./data/8192.npy"
-    scorer_anchor_cache_root: str = ""          # empty -> NAVSIM_EXP_ROOT/Drive-JEPA-cache/anchors_scores_v1_full_fp16
+    scorer_anchor_cache_root: str = ""          # empty -> NAVSIM_EXP_ROOT/da_wam_cache/anchors_scores_v1_full_fp16
     scorer_anchor_sampling: str = "hard_balanced"  # "hard_balanced" | "balanced" | "formula_counterfactual"
     scorer_anchor_num_local_hard: int = 64
     scorer_anchor_num_gt_local_hard: int = 0

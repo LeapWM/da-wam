@@ -14,7 +14,7 @@ defaults:
   - _self_
 
 split: trainval
-cache_path: ${oc.env:NAVSIM_EXP_ROOT}/B2d_cache
+cache_path: ${oc.env:NAVSIM_EXP_ROOT}/da_wam_b2d_cache
 use_cache_without_dataset: true # load the training samples from the cache. scene-filter will be ignored
 force_cache_computation: false
 experiment_name: B2d

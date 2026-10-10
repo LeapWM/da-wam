@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from camera_contract import CAMERA_ORDER, validate_camera_contract
 from bench2drive.model_server import _bench2drive_front_lidar_to_image, _normalize_ego_status, _normalize_target_point
-from bench2drive.training.drive_jepa_cache import preprocess_front_jpeg
+from bench2drive.training.da_wam_cache import preprocess_front_jpeg
 
 
 def build_online_features(request, device, expected_ego_status_dim, feature_config):
