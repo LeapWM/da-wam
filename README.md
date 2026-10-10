@@ -85,8 +85,7 @@ Selected rows from the paper's closed-loop comparison. “—” denotes values 
 | EgoFSD-S | 0.70 | 178.30 | — | 21.00 | 52.02 |
 | BridgeAD | 0.71 | — | — | 22.73 | 50.06 |
 | SeerDrive | 0.66 | — | — | 30.17 | 58.32 |
-| **DA-WAM†** | **0.95** | **140.40** | **14.64** | **24.66** | **59.04** |
-
+| **DA-WAM** | **0.95** | **140.40** | **14.64** | **24.66** | **59.04** |
 
 ### Ablation: future conditioning and safety supervision
 
@@ -135,8 +134,65 @@ source environment/activate_model.sh
 
 ### Training
 
+#### Prepare the NAVSIM cache (required before Stage 1)
+
+Stage 1 reads `da_wam_feature.gz` and `da_wam_target.gz` from the NAVSIM train/validation cache. The target cache must include `future_camera_features`; the default NAVSIM cache does not enable this target. Generate a dedicated cache first:
+
 ```bash
-# NAVSIM Stage 1: Joint30
+# Uses OPENSCENE_DATA_ROOT and NAVSIM_EXP_ROOT defaults documented in environment/README.md
+bash scripts/cache_navsim_v1.sh
+```
+
+The script calls `navsim_v1/navsim/planning/script/run_dataset_caching.py` with the DA-WAM agent configuration, `agent.cache_data=true`, and `agent.config.posttraj_future_enabled=true`. It caches offsets `[1]` by default: the next NAVSIM camera frame after the history (nominally 0.5 seconds at 2 Hz). The target builder reads `cam_f0`, crops and resizes the image to 512×256, and stores a float tensor shaped `[1, 3, 256, 512]` plus `future_camera_offset_order`. This is a cached image target, not a precomputed V-JEPA embedding.
+
+The new default cache directory is `${NAVSIM_EXP_ROOT}/train_da_wam_future_cache`, shared by the cache and Stage 1 scripts. OpenScene `navsim_logs/trainval`, `sensor_blobs/trainval`, and the nuPlan maps must exist first (`NUPLAN_MAPS_ROOT` defaults to `${OPENSCENE_DATA_ROOT}/maps`). Override paths or worker count with `OPENSCENE_DATA_ROOT`, `NAVSIM_EXP_ROOT`, `CACHE_PATH`, `NUPLAN_MAPS_ROOT`, and `CACHE_WORKERS`. If deliberately reusing an older cache directory, run `FORCE_CACHE_COMPUTATION=true bash scripts/cache_navsim_v1.sh` so existing target files without `future_camera_features` are rebuilt.
+
+To validate Hydra configuration without computing the cache, run `DRY_RUN=true bash scripts/cache_navsim_v1.sh`.
+
+Cache files are named `da_wam_feature.gz` and `da_wam_target.gz` across NAVSIM and the Bench2Drive cache builder. NAVSIM metric/anchor caches default to `${NAVSIM_EXP_ROOT}/da_wam_cache`; use `DA_WAM_METRIC_CACHE_ROOT` to point to an existing metric/anchor cache root, or `METRIC_CACHE_PATH` for an evaluation cache. Existing feature/target caches with the older filenames must be regenerated or have their files renamed before use. Bench2Drive caches use the `da_wam_` prefix; rebuild its cache bundle after this source change because its validity checks include source hashes. These naming changes do not alter checkpoint tensors.
+
+##### Choosing future offsets and the number of frames
+
+Set `POSTTRAJ_FUTURE_FRAME_OFFSETS` in **both** the cache and training commands. An offset is a frame index relative to the last history frame, not a duration in seconds. With `H` offsets, each cached `future_camera_features` tensor has shape `[H, 3, 256, 512]`; batching adds a leading batch dimension. `future_camera_offset_order` records the index order.
+
+| Offset list | Future frames (H) | Nominal target times at 2 Hz |
+| --- | ---: | --- |
+| `[1]` (default) | 1 | 0.5 s |
+| `[1,2]` | 2 | 0.5, 1.0 s |
+| `[1,2,3]` | 3 | 0.5, 1.0, 1.5 s |
+| `[1,2,3,4]` | 4 | 0.5, 1.0, 1.5, 2.0 s |
+
+The released training implementation requires **contiguous offsets starting at 1, with at most four frames**. Lists such as `[2]`, `[1,3]`, or `[1,2,3,4,5]` are unsupported; the cache launcher rejects them before computation. Multi-horizon training uses compact mode (`POSTTRAJ_FULL_CANDIDATE_LATENT=false`, the default). Full-candidate latent supervision supports only `[1]`. The EMA teacher uses adjacent frame pairs, and the future loss is averaged across horizons with the total future-loss weight unchanged.
+
+For example, generate a three-frame cache and train with all three frames:
+
+```bash
+export CACHE_PATH=/path/to/navsim_exp/train_da_wam_future_h3_cache
+export POSTTRAJ_FUTURE_FRAME_OFFSETS='[1,2,3]'
+bash scripts/cache_navsim_v1.sh
+POSTTRAJ_FULL_CANDIDATE_LATENT=false bash scripts/train_navsim.sh stage1
+```
+
+A cache can also contain a **superset** of the training offsets: `select_future_camera_features` selects the requested frames using `future_camera_offset_order`. For example, cache four frames once, then choose one, two, three, or four for a training run:
+
+```bash
+export CACHE_PATH=/path/to/navsim_exp/train_da_wam_future_h4_cache
+POSTTRAJ_FUTURE_FRAME_OFFSETS='[1,2,3,4]' bash scripts/cache_navsim_v1.sh
+
+# Choose [1], [1,2], [1,2,3], or [1,2,3,4] for this run.
+POSTTRAJ_FUTURE_FRAME_OFFSETS='[1,2]' \
+POSTTRAJ_FULL_CANDIDATE_LATENT=false \
+bash scripts/train_navsim.sh stage1
+```
+
+Every requested training offset must exist in the cache; a one-frame cache cannot serve a three-frame run. Use separate cache directories for different cached offset lists. If changing the list in an existing directory, set `FORCE_CACHE_COMPUTATION=true` to rebuild it; changing the environment variable alone does not invalidate existing files. More cached frames increase storage and preprocessing cost. The launcher's final check inspects one target file, not the completeness of the entire cache.
+
+Times in the table are nominal: the builder selects by frame index and does not verify timestamps. Check actual timestamp gaps for strict time-based experiments, particularly when frames are missing.
+
+#### Train models
+
+```bash
+# NAVSIM Stage 1: Joint30 (uses the cache created above)
 bash scripts/train_navsim.sh stage1
 
 # NAVSIM Stage 2: SafetyFinal; supply the Stage 1 parent checkpoint

@@ -64,8 +64,8 @@ agent:
     pretrain_pt_path: /mnt/downloads-1/models/vjepa2/vjepa2_1_vitl_dist_vitG_384.pt
     image_architecture: vjepa2_1_vit_large_384
     b2d: true
-    b2d_train_scorer_cache_path: /mnt/c2-worldmodel/2639639/Bench2Drive/drive_jepa_base/train_scorer.pkl.gz
-    b2d_val_scorer_cache_path: /mnt/c2-worldmodel/2639639/Bench2Drive/drive_jepa_base/val_scorer.pkl.gz
+    b2d_train_scorer_cache_path: /mnt/c2-worldmodel/2639639/Bench2Drive/da_wam_base/train_scorer.pkl.gz
+    b2d_val_scorer_cache_path: /mnt/c2-worldmodel/2639639/Bench2Drive/da_wam_base/val_scorer.pkl.gz
     b2d_map_cache_path: /dahuafs/userdata/2639639/Code/leap-auto-wam/bench2drive/dependencies/Drive-JEPA-V2-EMA-JQTF/bench2drive/cache/b2d_map_cache.pkl.gz
     command_num: 6
     half_length: 2.042

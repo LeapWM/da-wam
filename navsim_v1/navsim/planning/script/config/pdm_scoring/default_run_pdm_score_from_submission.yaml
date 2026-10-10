@@ -12,6 +12,6 @@ defaults:
   - default_scoring_parameters
   - _self_
 
-metric_cache_path: ${oc.env:NAVSIM_EXP_ROOT}/metric_cache # path to metric cache
+metric_cache_path: ${oc.env:DA_WAM_METRIC_CACHE_ROOT,${oc.env:NAVSIM_EXP_ROOT}/da_wam_cache}/metric_cache # path to metric cache
 submission_file_path: ??? # path to submission file
 output_dir: ???

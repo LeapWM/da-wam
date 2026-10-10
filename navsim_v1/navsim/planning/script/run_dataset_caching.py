@@ -40,11 +40,24 @@ def cache_features(args: List[Dict[str, Union[List[str], DictConfig]]]) -> List[
     scene_filter: SceneFilter = instantiate(cfg.train_test_split.scene_filter)
     scene_filter.log_names = log_names
     scene_filter.tokens = tokens
+    sensor_config = agent.get_sensor_config()
+    agent_config = cfg.agent.get("config", {})
+    if agent_config.get("posttraj_future_enabled", False):
+        # Future images are training targets. Request them only in the caching
+        # loader; the agent's inference sensor selection remains history-only.
+        future_indices = [
+            scene_filter.num_history_frames - 1 + int(offset)
+            for offset in agent_config.posttraj_future_frame_offsets
+        ]
+        if sensor_config.cam_f0 is not True:
+            sensor_config.cam_f0 = sorted(
+                set((sensor_config.cam_f0 or []) + future_indices)
+            )
     scene_loader = SceneLoader(
         sensor_blobs_path=Path(cfg.sensor_blobs_path),
         data_path=Path(cfg.navsim_log_path),
         scene_filter=scene_filter,
-        sensor_config=agent.get_sensor_config(),
+        sensor_config=sensor_config,
     )
     logger.info(f"Extracted {len(scene_loader.tokens)} scenarios for thread_id={thread_id}, node_id={node_id}.")
 

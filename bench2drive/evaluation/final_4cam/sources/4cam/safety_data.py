@@ -13,7 +13,7 @@ class DenseDataset(BaseDataset):
         files=[Path(__file__),Path(__file__).with_name("metric_geometry.py")]+[Path('/dahuafs/userdata/2639639/Code/leap-auto-wam/bench2drive/dependencies/geometry/src')/n for n in ('training_provider.py','recorded_geometry.py','prepared_geometry.py','candidate_geometry.py')]
         files.append(Path(__file__).with_name('horizon_geometry.py'))
         sig=hashlib.sha256(b''.join(p.read_bytes() for p in files)).hexdigest()[:16]
-        self.safety_cache=self.root/'ema_jqtf_3s_safety_cache'/sig
+        self.safety_cache=self.root/'da_wam_3s_safety_cache'/sig
     def __getitem__(self,index):
         f,t=super().__getitem__(index);sample=t['_scorer'];clip=sample['clip'];start=sample['frame_id']
         dest=self.safety_cache/self.split/clip/f'{start:05d}.pkl.gz'

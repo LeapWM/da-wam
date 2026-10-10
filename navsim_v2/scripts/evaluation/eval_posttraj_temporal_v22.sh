@@ -16,7 +16,7 @@ SPLIT="${SPLIT:-navtest}"
 case "${SPLIT}" in
   navtest)
     ENTRY=run_pdm_score_one_stage.py
-    CACHE_DEFAULT="${NAVSIM_EXP_ROOT}/Drive-JEPA-cache/metric_cache_v2"
+    CACHE_DEFAULT="${DA_WAM_METRIC_CACHE_ROOT:-${NAVSIM_EXP_ROOT}/da_wam_cache}/metric_cache_v2"
     ;;
   navhard_two_stage)
     ENTRY=run_pdm_score.py
@@ -27,7 +27,11 @@ esac
 MODE="${MODE:-bounded}"
 CHECKPOINT_PATH="${CHECKPOINT_PATH:-/tmp/posttraj_v1_e1_zeroshot_v2.ckpt}"
 METRIC_CACHE_PATH="${METRIC_CACHE_PATH:-${CACHE_DEFAULT}}"
-[[ -s "${CHECKPOINT_PATH}" && -d "${METRIC_CACHE_PATH}" ]]
+config_only=false
+for arg in "$@"; do [[ "$arg" == --cfg* ]] && config_only=true; done
+if [[ "${config_only}" == false ]]; then
+  [[ -s "${CHECKPOINT_PATH}" && -d "${METRIC_CACHE_PATH}" ]]
+fi
 cd "${NAVSIM_V2_ROOT}"
 CUDA_VISIBLE_DEVICES="${GPU:-0,1}" "${CONDA_ROOT}/bin/python" -u \
   "navsim/planning/script/${ENTRY}" --config-name=posttraj_temporal_v22 \

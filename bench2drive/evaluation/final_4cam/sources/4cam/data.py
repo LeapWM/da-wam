@@ -6,7 +6,7 @@ import torch
 from torch.utils.data import Dataset
 from torch.utils.data._utils.collate import default_collate
 from bench2drive.training.scorer_cache import ScorerCacheConfig,_build_sample
-from bench2drive.training.drive_jepa_cache import preprocess_front_jpeg,front_lidar_to_processed_image,build_ego_status
+from bench2drive.training.da_wam_cache import preprocess_front_jpeg,front_lidar_to_processed_image,build_ego_status
 
 @functools.lru_cache(maxsize=64)
 def annotation(path):
@@ -22,9 +22,9 @@ class DenseDataset(Dataset):
     def __init__(self,root,index,split):
         self.root=Path(root);self.entries=[]
         for c in index[split]:self.entries.extend((c['folder'],i,c['first']) for i in c['frames'])
-        sources=[Path(__file__),Path(__import__('bench2drive.training.scorer_cache',fromlist=['x']).__file__),Path(__import__('bench2drive.training.drive_jepa_cache',fromlist=['x']).__file__)]
+        sources=[Path(__file__),Path(__import__('bench2drive.training.scorer_cache',fromlist=['x']).__file__),Path(__import__('bench2drive.training.da_wam_cache',fromlist=['x']).__file__)]
         signature=hashlib.sha256(b''.join(p.read_bytes() for p in sources)).hexdigest()[:16]
-        self.cache=self.root/'ema_jqtf_3s_numeric_cache'/signature
+        self.cache=self.root/'da_wam_3s_numeric_cache'/signature
     def __len__(self):return len(self.entries)
     def __getitem__(self,idx):
         weight=1.

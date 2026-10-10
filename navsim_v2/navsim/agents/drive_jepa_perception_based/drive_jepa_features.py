@@ -33,7 +33,7 @@ class DriveJEPAFeatureBuilder(AbstractFeatureBuilder):
 
     def get_unique_name(self) -> str:
         """Inherited, see superclass."""
-        return "pad_feature"
+        return "da_wam_feature"
 
     def _get_camera_feature(self, agent_input: AgentInput) -> Dict[str, torch.Tensor]:
         """
@@ -138,7 +138,7 @@ class DriveJEPATargetBuilder(AbstractTargetBuilder):
 
     def get_unique_name(self) -> str:
         """Inherited, see superclass."""
-        return "pad_target"
+        return "da_wam_target"
 
     def compute_targets(self, scene: Scene) -> Dict[str, torch.Tensor]:
         """Inherited, see superclass."""

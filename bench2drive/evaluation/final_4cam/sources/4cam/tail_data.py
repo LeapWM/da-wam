@@ -6,7 +6,7 @@ import torch
 from safety_data import DenseDataset as CompleteDataset,collate
 from data import annotation
 from bench2drive.training.scorer_cache import _world2ego,_future_ego_pose
-from bench2drive.training.drive_jepa_cache import preprocess_front_jpeg,front_lidar_to_processed_image,build_ego_status
+from bench2drive.training.da_wam_cache import preprocess_front_jpeg,front_lidar_to_processed_image,build_ego_status
 from route_targets import RouteTargetCache
 
 TAIL_CACHE_SIGNATURE='scalar-speed-v1'
@@ -34,7 +34,7 @@ class DenseDataset(CompleteDataset):
         self.complete={c['folder']:set(c.get('complete_frames',c['frames'])) for c in index[split]}
         # Route-target loading does not change trajectory/mask cache content.
         # Change this only when the tail numeric generation contract changes.
-        self.tail_cache=self.root/'ema_jqtf_tail_numeric_cache'/TAIL_CACHE_SIGNATURE
+        self.tail_cache=self.root/'da_wam_tail_numeric_cache'/TAIL_CACHE_SIGNATURE
 
     def _route_features(self,features,clip,frame):
         if self.route_targets is None:return features
