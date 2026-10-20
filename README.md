@@ -189,6 +189,71 @@ Every requested training offset must exist in the cache; a one-frame cache canno
 
 Times in the table are nominal: the builder selects by frame index and does not verify timestamps. Check actual timestamp gaps for strict time-based experiments, particularly when frames are missing.
 
+#### Prepare the NAVSIM v1 anchor score cache
+
+Joint30 and SafetyFinal also require **full per-scene anchor scores**, separate
+from the image/target cache above and from `train_metric_cache`.
+`anchors_scores_index` contains selected indices and cannot replace these scores.
+
+The cache contains **103,288 scenes** (about **9.47 GiB uncompressed**). Each
+`<log>/unknown/<token>/metric_cache.pkl.npy` is a float16 array of shape
+`(8192, 6)`, with columns `[NOC, DAC, EP, TTC, comfort, final]`, aligned with
+`navsim_v1/data/8192.npy` in its original order, sampled as `anchors[:, 4::5]`.
+It is a NAVSIM **v1** training cache; do not use it as v2 EPDMS labels.
+
+Download the cache from [DA-WAM on Hugging Face](https://huggingface.co/Ruiguo1/DA-WAM/tree/main/caches/navsim_v1):
+
+```bash
+export NAVSIM_EXP_ROOT=/path/to/navsim_exp
+export DA_WAM_METRIC_CACHE_ROOT="${NAVSIM_EXP_ROOT}/da_wam_cache"
+export ANCHOR_DOWNLOAD_DIR=/path/to/downloads/da_wam
+hf download Ruiguo1/DA-WAM --include "caches/navsim_v1/*" \
+  --local-dir "$ANCHOR_DOWNLOAD_DIR"
+(cd "$ANCHOR_DOWNLOAD_DIR/caches/navsim_v1" && sha256sum -c SHA256SUMS)
+mkdir -p "$DA_WAM_METRIC_CACHE_ROOT"
+tar -xzf "$ANCHOR_DOWNLOAD_DIR/caches/navsim_v1/anchors_scores_v1_full_fp16.tar.gz" \
+  -C "$DA_WAM_METRIC_CACHE_ROOT"
+
+source environment/activate_model.sh
+python navsim_v1/scripts/training/validate_anchor_score_cache.py \
+  --cache-root "$DA_WAM_METRIC_CACHE_ROOT/anchors_scores_v1_full_fp16" \
+  --verify-sha256
+```
+
+The archive includes `cache_manifest.json` and `files.jsonl` with relative paths,
+token IDs, byte sizes, and per-file SHA256 hashes. Validation checks every file
+and every score array by default. Add `--sample-files 32` for a faster content
+sample; file existence and size are still checked for the entire index.
+
+To **compute the scores yourself**, first prepare the NAVSIM v1
+[`train_metric_cache.tar`](https://huggingface.co/datasets/LinhanWang/Drive-JEPA/blob/main/train_metric_cache.tar)
+under `$DA_WAM_METRIC_CACHE_ROOT/train_metric_cache`; see
+[metric-cache setup](environment/README.md#navsim-v1-training-metric-cache).
+Then run from the repository root:
+
+```bash
+# Check inputs without computing or writing scores.
+bash scripts/cache_navsim_anchor_scores.sh --dry-run
+
+# CPU computation; choose a worker count appropriate for your CPU/RAM allocation.
+ANCHOR_MAX_WORKERS=8 bash scripts/cache_navsim_anchor_scores.sh
+
+python navsim_v1/scripts/training/validate_anchor_score_cache.py \
+  --cache-root "$DA_WAM_METRIC_CACHE_ROOT/anchors_scores_v1_full_fp16" \
+  --metric-csv "$DA_WAM_METRIC_CACHE_ROOT/train_metric_cache/metadata/train_metric_cache_metadata_node_0.csv"
+```
+
+The generator resumes valid existing files, writes each array atomically, and
+records anchor/scorer hashes and run status. It checks fp16 error and recomputes
+32 sampled anchors per newly written scene. Use `--metric-cache-root`,
+`--csv-path`, `--anchor-path`, or `--output-root` for custom paths.
+For a pilot, use `--max-scenes 1 --output-root /path/to/pilot`; this does **not**
+produce a complete training cache. For distributed preprocessing, use matching
+`--num-splits N --split-index I` values (`I=0,...,N-1`) and validate against the
+full metadata CSV after all splits finish. The generator rebases stale metadata
+mount prefixes while reading; training needs the CSV paths updated as described
+in the environment setup.
+
 #### Train models
 
 ```bash
@@ -203,6 +268,38 @@ bash scripts/train_bench2drive.sh
 ```
 
 The NAVSIM recipe uses 32 proposals and LoRA rank 32. Stage 2 starts from Joint30 epoch 15, freezes proposal generation, and retains SafetyFinal epoch 1. The Stage 1 parent is not bundled with the final-only checkpoints. The NAVSIM v2 result uses the v1-trained model without v2-specific training. Training launchers default to multiple GPUs and require prepared caches.
+
+#### Counterfactual anchor sampling in the released NAVSIM recipe
+
+The released Joint30/SafetyFinal implementation retrieves **proposal-local
+counterfactual alternatives**. The reference trajectories are the 32 generated
+`pred["proposals"]`, not the expert trajectory. For each proposal it considers
+the 64 nearest bank trajectories, using mean XY distance plus `0.5` times mean
+absolute wrapped-yaw difference. Eligible pairs have an **absolute final PDM
+score gap of at least 0.2** and are ranked by `gap / (distance + 1e-3)`, with
+anchor deduplication. There is no fixed geometric-distance cutoff, and an
+alternative can have a higher or lower score than its reference proposal.
+
+| Training stage | Local-hard quota | Additional quota |
+| --- | ---: | --- |
+| Stage 1: Joint30 | 64 | 64 balanced |
+| Stage 2: SafetyFinal | 32 | 96 safety-focused |
+
+If too few local-hard anchors qualify, additional balanced samples fill the
+shortfall to retain 128 unique anchors. Retrieved anchors are scored through
+the same external-trajectory scoring path and use cached planning labels,
+without observed future-image targets. SafetyFinal uses safety-weighted
+final-score BCE and a safety-ranking loss.
+
+**Clarification of the paper:** the “expert-proximate” wording and the explicit
+expert-distance/safety-degradation constraints in
+[Section 3.4](https://arxiv.org/html/2608.19085v2#S3.SS4) do not precisely describe
+this released sampling rule. Here, “near planning boundaries” refers to local
+comparisons around generated proposals, not a guaranteed neighborhood of the
+expert trajectory. Expert supervision in other training objectives is separate
+from anchor retrieval. Historical GT-local experiments use a different sampler;
+they are not the training recipe for the released final checkpoint. This
+clarification does not change the sampler or checkpoint.
 
 ### Inference and evaluation
 
